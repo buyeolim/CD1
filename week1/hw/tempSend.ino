@@ -25,7 +25,7 @@ WiFiClient client;                          // 와이파이 클라이언트 변�
 void setup() 
 {
     Serial.begin(9600);  // start serial port
-    sensors.begin();      // start up the library
+    sensors.begin();     // start up the library
     connectWifi();     
     
     return;
