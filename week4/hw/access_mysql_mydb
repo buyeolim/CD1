@@ -1,2 +1,0 @@
-sudo mysql -u root -p ""
-use mydb

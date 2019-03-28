@@ -20,16 +20,12 @@ connection.connect();
 /*
  * current_temperatures 테이블에 삽입
  */
-function insertCurrTempTable(year, month, date, hour, minute, temp) {
+function insertCurrTempTable(temp) {
 	obj = {};
-	obj.year = year;
-	obj.month = month;
-	obj.date = date;
-	obj.hour = hour;
-	obj.minute = minute;
 	obj.temp = temp;
-
-	var query = connection.query('insert into current_temperatures set ?', obj, function(err, rows, cols) {
+	
+	var cmd = 'INSERT INTO current_temperatures SET ?';
+	connection.query(cmd, obj, function(err, rows, cols) {
 		if (err) throw err;
 		console.log("database insert ok= %j", obj);
 	});
@@ -39,6 +35,8 @@ var express = require('express');
 var app = express(); // app은 express의 인스턴스
 var fs = require('fs');
 var numeral = require('numeral'); // 수의 출력형식
+var moment = require('moment'); // TIMESTAMP, nodejs에서 핸들링
+var now = moment();
 
 /*
  * GET method route(홈페이지 라우트)
@@ -59,7 +57,7 @@ app.get('/log', function(req, res) {
 	// query를 이용하여 파싱한 값을 table에 insert
 	r = req.query;
 	console.log('GET %j', r);
-	insertCurrTempTable(r.year, r.month, r.date, r.hour, r.minute, r.temp, req.connection.remoteAddress);
+	insertCurrTempTable(r.temp, req.connection.remoteAddress);
 	res.end('OK: ' + JSON.stringify(req.query));
 
 	// 파싱한 후, 각 데이터의 형식 변환
@@ -88,8 +86,10 @@ app.get('/log', function(req, res) {
 });
 
 /*
-* 텍스트로 출력
-*/
+ * 텍스트로 출력
+ * GET method route
+ * 라우트 경로: 요청(req)를 /dump에 일치
+ */
 app.get('/dump', function(req, res) {
 	txt = JSON.stringify(req.query);
 	var jData = JSON.parse(txt);	// JSON 파싱으로 구분
@@ -111,30 +111,37 @@ app.get('/dump', function(req, res) {
 
 /*
  * 그래프로 출력
+ * GET method route
+ * 라우트 경로: 요청(req)를 /graph에 일치
  */
 app.get('/graph', function (req, res) {
 	console.log('got app.get(graph)');
 
 	var html = fs.readFile('./graph.html', function (err, html) {
-		html = " " + html;
+		html = ' ' + html;
 		console.log('read file');
 
-		// current_temperatures 테이블 조회
-		var qstr = 'select * from current_temperatures';
-		connection.query(qstr, function(err, rows, cols) {
+		// current_temperatures 테이블 조회	
+		var cmd = 'SELECT * FROM current_temperatures';
+		connection.query(cmd, function(err, rows, cols) {
 			if (err) throw err;
-			
-			var data = "";
-			var comma = "";
+			var data = '';
+			var comma = '';
 			for (var i = 0; i < rows.length; i++) {
 				r = rows[i];
-				data += comma + "[new Date(" + r.year + "," + r.month + "-" +r.date + "," + r.hour + "," + r.minute + "," + "50)," + r.temp + "]";
-				comma = ",";
+				var now = moment(r.time); // 테이블 TIMESTAMP 호출을 위한 모멘트 사용
+				// 차트: new Date(year, month, day, hour, min, sec, mill) ,주의! month: 0(Jan) ~ 11(Dec)
+				// 모멘트 get('month'): 0 ~ 11 반환
+				data += comma + '[new Date(';
+				data += now.get('year') + ', ' + now.get('month') + ', ' + now.get('date') + ', ' ; 
+				data += now.get('hour') + ', ' + now.get('minute') + '), ';
+				data += r.temp + "]";
+				comma = ",\n";
 			}
 			
 			console.log(data);			
-			var header = "data.addColumn('date');"
-			header += "data.addColumn('number', 'Temp');"
+			var header = "data.addColumn('datetime', 'Date & Time');\n"	// 첫번째 컬럼(데이터 형식, 컬럼명)
+			header += "\t\t\t\tdata.addColumn('number', 'My room');"	// 두번째 컬럼
 			html = html.replace("<%HEADER%>", header);
 			html = html.replace("<%DATA%>", data);
 
@@ -145,6 +152,24 @@ app.get('/graph', function (req, res) {
 	});
 });
 
+/*
+ * 실험용 (테이블의 TIME값 출력)
+ */
+app.get('/test', function(req, res) {
+		var qstr = 'SELECT * FROM current_temperatures';
+		connection.query(qstr, function(err, rows, cols) {
+			if (err) throw err;
+			
+			var gmt = 9; // 한국시간 gmt + 9
+			for (var i = 0; i < rows.length; i++) {
+				r = rows[i];
+				var now = moment(r.time);
+				console.log(r.time);
+				console.log(now.get('second'));
+			}
+		});
+
+});
 
 app.listen(4885, function() {
 	console.log('Homework app of week 4 listening on port 4885!');
