@@ -53,8 +53,11 @@ void loop()
     
     Serial.print("Current Temperature(Celsius): ");
     Serial.println(temp);
-
     sendToThingspeak(temp);
+	Serial.println("");
+
+    Serial.print("Current Temperature(Celsius): ");
+    Serial.println(temp);
     sendToEc2(temp);
     Serial.println("");
     
@@ -134,7 +137,7 @@ void connectWifi()
         logStr += "?year="+ String(year) + "&month=" + String(month)  + "&date=" + String(date);
         logStr += "&hour=" + String(hour) + "&minute=" + String(minute) + "&temp=" + String(temp);
           
-        Serial.println("Sending data to EC2 / ");
+        Serial.println("Sending data to EC2");
         
         client.print(logStr);                   
         client.print("\n\n");                     
