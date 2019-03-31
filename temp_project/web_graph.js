@@ -159,25 +159,6 @@ app.get('/graph', function (req, res) {
 	});
 });
 
-/*
- * 실험용 (테이블의 TIME값 출력)
- */
-app.get('/test', function(req, res) {
-		var cmd = 'SELECT * FROM current_temperatures';
-		connection.query(cmd, function(err, rows, cols) {
-			if (err) throw err;
-			
-			var gmt = 9; // 한국시간 gmt + 9
-			for (var i = 0; i < rows.length; i++) {
-				r = rows[i];
-				var now = moment(r.time);
-				console.log(r.time);
-				console.log(now.get('second'));
-			}
-		});
-
-});
-
 app.listen(4885, function() {
 	console.log('Homework app of week 4 listening on port 4885!');
 });
