@@ -8,12 +8,13 @@
 /*
  * mysql 실행, 'me'@'localhost', mydb 데이터베이스 연결
  */
+var userAccount = require('./user_account');
 mysql = require('mysql');
 var connection = mysql.createConnection({
-	host: 'localhost',
-	user: 'me',
-	password: '',
-	database: 'mydb'
+	host: userAccount.host,
+	user: userAccount.user,
+	password: userAccount.password,
+	database: userAccount.database
 })
 connection.connect();
 
