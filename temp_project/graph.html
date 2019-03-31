@@ -8,7 +8,7 @@
 			
 			// Set a callback to run when the Google Visualization API is loaded.
 			google.charts.setOnLoadCallback(drawChart);
-
+			
 			// Callback that creates and populates a data table,
 			// instantiates the pie chart, passes in the data and
 			//  draw it.
@@ -18,7 +18,6 @@
 
 				// 그래프 데이터 칼럼
 				<%HEADER%>
-
 				// 데이터 추가
 				data.addRows([
 					<%DATA%>
@@ -28,21 +27,20 @@
 				var options = {
 					chart: {
 						title: '2019 Capstone Design I',
-						subtitle: 'Homwork in week 4: Current temperatures graph'
+						subtitle: 'Homwork in week 4: Current temperatures graph\n\n<%STARTTIME%> ~ <%LASTTIME%>'
 					},
+//					curveType: 'function',
 					width: 1024,
 					height: 512,
 					vAxis: { title: 'Temps (Celsius)' },
 					hAxis: { title: 'Datetime'},
-					lineWidth: 10,
-					colors: ['red'],
-
+					colors: ['red']
 				};
 
 				// Instantiate and draw our chart, passing in some options.
 				var chart = new google.charts.Line(document.getElementById('line_top_x'));
 				chart.draw(data, google.charts.Line.convertOptions(options));
-			}
+			}	
 		</script>
 	</head>
 	<body>

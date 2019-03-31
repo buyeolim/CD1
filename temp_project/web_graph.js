@@ -142,8 +142,14 @@ app.get('/graph', function (req, res) {
 			console.log(data);			
 			var header = "data.addColumn('datetime', 'Date & Time');\n"	// 첫번째 컬럼(데이터 형식, 컬럼명)
 			header += "\t\t\t\tdata.addColumn('number', 'My room');"	// 두번째 컬럼
+
 			html = html.replace("<%HEADER%>", header);
 			html = html.replace("<%DATA%>", data);
+
+			var starttime = moment(rows[0].time).format('YYYY-M-D, h:mm A');
+			var lasttime = moment(rows[i - 1].time).format('YYYY-M-D, h:mm A');
+			html = html.replace('<%STARTTIME%>', starttime);
+			html = html.replace('<%LASTTIME%>', lasttime);
 
 			res.writeHeader(200, {"Content-Type": "text/html"});
 			res.write(html);
@@ -156,8 +162,8 @@ app.get('/graph', function (req, res) {
  * 실험용 (테이블의 TIME값 출력)
  */
 app.get('/test', function(req, res) {
-		var qstr = 'SELECT * FROM current_temperatures';
-		connection.query(qstr, function(err, rows, cols) {
+		var cmd = 'SELECT * FROM current_temperatures';
+		connection.query(cmd, function(err, rows, cols) {
 			if (err) throw err;
 			
 			var gmt = 9; // 한국시간 gmt + 9
