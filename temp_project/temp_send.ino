@@ -23,9 +23,10 @@ const char* serverNtp = "kr.pool.ntp.org";      // NTP 서버
 int gmt = 9; // 한국시간: 그리니치 평균시(Greenwich Mean Time) + 9
 int dst = 0; // 서머타임(Daylight Saving Time): 0
 
-const char* ssid = "myWifi";              // 와이파이 SSID
-const char* password = "myPassword";      // 와이파이 비밀번호
-WiFiClient client;                        // 와이파이 클라이언트 변수
+#include "user_account.h"					// 사용자 계정 정보 헤더파일
+const char* ssid = userWifiName;            // 와이파이 SSID
+const char* password = userWifiPassword;	// 와이파이 비밀번호
+WiFiClient client;							// 와이파이 클라이언트 변수
 
 /* 
  * 최초 1회 setup 함수 작동 (리셋 or 전원연결시)
